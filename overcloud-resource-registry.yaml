@@ -1,3 +1,7 @@
 resource_registry:
   OS::TripleO::Compute: compute.yaml
+  # FIXME use multiple environments to enable puppet
+  #OS::TripleO::NovaComputeConfig: compute-config.yaml
+  OS::TripleO::NovaComputeConfig: compute-config-puppet.yaml
+  OS::TripleO::SoftwareDeployment: OS::Heat::StructuredDeployment
   OS::TripleO::Controller: controller.yaml

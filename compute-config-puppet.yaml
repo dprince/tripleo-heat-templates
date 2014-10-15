@@ -1,0 +1,68 @@
+heat_template_version: 2014-10-16
+
+description: >
+  Puppet Software Config for Nova Compute.
+
+parameters:
+  debug:
+    default: ''
+    description: Set to True to enable debugging on all services.
+    type: string
+
+resources:
+
+  NovaComputeConfigImpl:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      inputs:
+      - name: nova_compute_driver
+      - name: nova_compute_libvirt_type
+      - name: nova_dsn
+      #- name: debug
+      - name: nova_api_host
+      - name: nova_public_ip
+      - name: nova_password
+      - name: ceilometer_dsn
+      - name: ceilometer_metering_secret
+      - name: ceilometer_password
+      - name: ceilometer_compute_agent
+      - name: snmpd_readonly_user_name
+      - name: snmpd_readonly_user_password
+      - name: glance_host
+      - name: glance_port
+      - name: glance_protocol
+      - name: keystone_host
+      - name: neutron_flat_networks
+      - name: neutron_host
+      - name: neutron_dsn
+      - name: neutron_local_ip
+      - name: neutron_tenant_network_type
+      - name: neutron_tunnel_types
+      - name: neutron_network_vlan_ranges
+      - name: neutron_bridge_mappings
+      - name: neutron_enable_tunneling
+      - name: neutron_physical_bridge
+      - name: neutron_public_interface
+      - name: neutron_password
+      - name: admin_password
+      - name: rabbit_host
+      - name: rabbit_username
+      - name: rabbit_password
+      - name: live_update_host
+      - name: live_update_username
+      - name: live_update_password
+      - name: live_update_tenant_name
+      - name: nova_image
+      - name: live_update_compute_image
+      - name: ntp_server
+      outputs:
+      - name: result
+      config:
+        get_file: puppet/compute.pp
+
+outputs:
+  config_id:
+    description: The ID of the NovaComputeConfigImpl resource.
+    value:
+      {get_resource: NovaComputeConfigImpl}
