@@ -13,7 +13,24 @@ parameters:
   NodeConfigIdentifiers:
      type: json
      description: Value which changes if the node configuration may need to be re-applied
-
+  Step1Config:
+     type: string
+     default: ''
+  Step2Config:
+     type: string
+     default: ''
+  Step3Config:
+     type: string
+     default: ''
+  Step4Config:
+     type: string
+     default: ''
+  Step5Config:
+     type: string
+     default: ''
+  Step6Config:
+     type: string
+     default: ''
 
 resources:
 
@@ -24,8 +41,30 @@ resources:
       input_values:
         update_identifier: {get_param: NodeConfigIdentifiers}
 
+  # we use outputs from this resource to swap in custom
+  # version of puppet manifests (i.e. pacemaker)
   ControllerPuppetConfig:
     type: OS::TripleO::ControllerConfig
+
+
+  ControllerPuppetConfig_Step1:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      options:
+        enable_debug: {get_param: ConfigDebug}
+        enable_hiera: True
+        enable_facter: False
+      outputs:
+      - name: result
+      config:
+        list_join:
+        - ''
+        - - get_attr: [ControllerPuppetConfig, pre_manifest]
+          - get_attr: [ControllerPuppetConfig, step1_manifest]
+          - get_param: Step1Config
+          - get_attr: [ControllerPuppetConfig, post_manifest]
+
 
   # Step through a series of Puppet runs using the same manifest.
   # NOTE: To enable stepping through the deployments via heat hooks,
@@ -36,22 +75,40 @@ resources:
     depends_on: ControllerPrePuppet
     properties:
       servers:  {get_param: servers}
-      config: {get_resource: ControllerPuppetConfig}
+      config: {get_resource: ControllerPuppetConfig_Step1}
       input_values:
         step: 1
         update_identifier: {get_param: NodeConfigIdentifiers}
-      actions: ['CREATE'] # no need for two passes on an UPDATE
+
+  ControllerPuppetConfig_Step2:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      options:
+        enable_debug: {get_param: ConfigDebug}
+        enable_hiera: True
+        enable_facter: False
+      outputs:
+      - name: result
+      config:
+        list_join:
+        - ''
+        - - get_attr: [ControllerPuppetConfig, pre_manifest]
+          - get_attr: [ControllerPuppetConfig, step1_manifest]
+          - get_param: Step1Config
+          - get_attr: [ControllerPuppetConfig, step2_manifest]
+          - get_param: Step2Config
+          - get_attr: [ControllerPuppetConfig, post_manifest]
 
   ControllerServicesBaseDeployment_Step2:
     type: OS::Heat::StructuredDeployments
     depends_on: ControllerLoadBalancerDeployment_Step1
     properties:
       servers:  {get_param: servers}
-      config: {get_resource: ControllerPuppetConfig}
+      config: {get_resource: ControllerPuppetConfig_Step2}
       input_values:
         step: 2
         update_identifier: {get_param: NodeConfigIdentifiers}
-      actions: ['CREATE'] # no need for two passes on an UPDATE
 
   ControllerRingbuilderPuppetConfig:
     type: OS::Heat::SoftwareConfig
@@ -61,11 +118,17 @@ resources:
         enable_debug: {get_param: ConfigDebug}
         enable_hiera: True
         enable_facter: False
-      inputs:
-      outputs:
-      - name: result
       config:
-        get_file: manifests/ringbuilder.pp
+        list_join:
+        - ''
+        - - get_attr: [ControllerPuppetConfig, pre_manifest]
+          - get_attr: [ControllerPuppetConfig, step1_manifest]
+          - get_param: Step1Config
+          - get_attr: [ControllerPuppetConfig, step2_manifest]
+          - get_param: Step2Config
+          - get_attr: [ControllerPuppetConfig, step3_manifest]
+          - get_param: Step3Config
+          - get_attr: [ControllerPuppetConfig, post_manifest]
 
   ControllerRingbuilderDeployment_Step3:
     type: OS::Heat::StructuredDeployments
@@ -74,36 +137,115 @@ resources:
       servers:  {get_param: servers}
       config: {get_resource: ControllerRingbuilderPuppetConfig}
       input_values:
+        step: 3
         update_identifier: {get_param: NodeConfigIdentifiers}
+
+  ControllerPuppetConfig_Step4:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      options:
+        enable_debug: {get_param: ConfigDebug}
+        enable_hiera: True
+        enable_facter: False
+      outputs:
+      - name: result
+      config:
+        list_join:
+        - ''
+        - - get_attr: [ControllerPuppetConfig, pre_manifest]
+          - get_attr: [ControllerPuppetConfig, step1_manifest]
+          - get_param: Step1Config
+          - get_attr: [ControllerPuppetConfig, step2_manifest]
+          - get_param: Step2Config
+          - get_attr: [ControllerPuppetConfig, step3_manifest]
+          - get_param: Step3Config
+          - get_attr: [ControllerPuppetConfig, step4_manifest]
+          - get_param: Step4Config
+          - get_attr: [ControllerPuppetConfig, post_manifest]
 
   ControllerOvercloudServicesDeployment_Step4:
     type: OS::Heat::StructuredDeployments
     depends_on: ControllerRingbuilderDeployment_Step3
     properties:
       servers:  {get_param: servers}
-      config: {get_resource: ControllerPuppetConfig}
+      config: {get_resource: ControllerPuppetConfig_Step4}
       input_values:
-        step: 3
+        step: 4
         update_identifier: {get_param: NodeConfigIdentifiers}
+
+  ControllerPuppetConfig_Step5:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      options:
+        enable_debug: {get_param: ConfigDebug}
+        enable_hiera: True
+        enable_facter: False
+      outputs:
+      - name: result
+      config:
+        list_join:
+        - ''
+        - - get_attr: [ControllerPuppetConfig, pre_manifest]
+          - get_attr: [ControllerPuppetConfig, step1_manifest]
+          - get_param: Step1Config
+          - get_attr: [ControllerPuppetConfig, step2_manifest]
+          - get_param: Step2Config
+          - get_attr: [ControllerPuppetConfig, step3_manifest]
+          - get_param: Step3Config
+          - get_attr: [ControllerPuppetConfig, step4_manifest]
+          - get_param: Step4Config
+          - get_attr: [ControllerPuppetConfig, step5_manifest]
+          - get_param: Step5Config
+          - get_attr: [ControllerPuppetConfig, post_manifest]
 
   ControllerOvercloudServicesDeployment_Step5:
     type: OS::Heat::StructuredDeployments
     depends_on: ControllerOvercloudServicesDeployment_Step4
     properties:
       servers:  {get_param: servers}
-      config: {get_resource: ControllerPuppetConfig}
+      config: {get_resource: ControllerPuppetConfig_Step5}
       input_values:
-        step: 4
+        step: 5
         update_identifier: {get_param: NodeConfigIdentifiers}
+
+  ControllerPuppetConfig_Step6:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      options:
+        enable_debug: {get_param: ConfigDebug}
+        enable_hiera: True
+        enable_facter: False
+      outputs:
+      - name: result
+      config:
+        list_join:
+        - ''
+        - - get_attr: [ControllerPuppetConfig, pre_manifest]
+          - get_attr: [ControllerPuppetConfig, step1_manifest]
+          - get_param: Step1Config
+          - get_attr: [ControllerPuppetConfig, step2_manifest]
+          - get_param: Step2Config
+          - get_attr: [ControllerPuppetConfig, step3_manifest]
+          - get_param: Step3Config
+          - get_attr: [ControllerPuppetConfig, step4_manifest]
+          - get_param: Step4Config
+          - get_attr: [ControllerPuppetConfig, step5_manifest]
+          - get_param: Step5Config
+          - get_attr: [ControllerPuppetConfig, step6_manifest]
+          - get_param: Step6Config
+          - get_attr: [ControllerPuppetConfig, post_manifest]
 
   ControllerOvercloudServicesDeployment_Step6:
     type: OS::Heat::StructuredDeployments
     depends_on: ControllerOvercloudServicesDeployment_Step5
     properties:
       servers:  {get_param: servers}
-      config: {get_resource: ControllerPuppetConfig}
+      config: {get_resource: ControllerPuppetConfig_Step6}
       input_values:
-        step: 5
+        step: 6
         update_identifier: {get_param: NodeConfigIdentifiers}
 
   ControllerPostPuppet:
