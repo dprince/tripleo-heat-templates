@@ -687,6 +687,9 @@ parameters:
     type: json
     description: Optional scheduler hints to pass to nova
     default: {}
+  ServiceConfigSettings:
+    type: json
+    default: {}
 
 resources:
 
@@ -1122,6 +1125,7 @@ resources:
             - heat_config_%{::deploy_config_name}
             - controller_extraconfig
             - extraconfig
+            - service_configs
             - controller
             - database
             - object
@@ -1139,6 +1143,8 @@ resources:
             - cisco_n1kv_data # Optionally provided by ControllerExtraConfigPre
             - neutron_nuage_data # Optionally provided by ControllerExtraConfigPre
           datafiles:
+            service_configs:
+              mapped_data: {get_param: ServiceConfigSettings}
             controller_extraconfig:
               mapped_data: {get_param: ControllerExtraConfig}
             extraconfig:
