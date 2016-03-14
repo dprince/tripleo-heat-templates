@@ -1,30 +1,30 @@
 heat_template_version: 2015-04-30
 
 description: >
-  A software config which runs manifests/overcloud_controller.pp
-
-parameters:
-  ConfigDebug:
-    default: false
-    description: Whether to run config management (e.g. Puppet) in debug mode.
-    type: boolean
-
-resources:
-
-  ControllerPuppetConfigImpl:
-    type: OS::Heat::SoftwareConfig
-    properties:
-      group: puppet
-      options:
-        enable_debug: {get_param: ConfigDebug}
-        enable_hiera: True
-        enable_facter: False
-      outputs:
-      - name: result
-      config:
-        get_file: manifests/overcloud_controller.pp
+  Pass through resource to provide custom manifests for the
+  overcloud controller.
 
 outputs:
-  OS::stack_id:
-    description: The software config which runs overcloud_controller.pp
-    value: {get_resource: ControllerPuppetConfigImpl}
+  pre_manifest:
+    value:
+      get_file: manifests/overcloud_controller_pre.pp
+  step1_manifest:
+    value:
+      get_file: manifests/overcloud_controller_1.pp
+  step2_manifest:
+    value:
+      get_file: manifests/overcloud_controller_2.pp
+  step3_manifest:
+    value:
+      get_file: manifests/ringbuilder.pp
+  step4_manifest:
+    value:
+      get_file: manifests/overcloud_controller_4.pp
+  step5_manifest:
+    value:
+      get_file: manifests/overcloud_controller_5.pp
+  step6_manifest:
+    value: '' #no data (pacemaker fencing)
+  post_manifest:
+    value:
+      get_file: manifests/overcloud_controller_post.pp
