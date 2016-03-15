@@ -702,6 +702,13 @@ parameters:
                  via parameter_defaults in the resource registry.
     type: json
 
+  ControllerServices:
+    default: []
+    description: A list of service resources (configured in the Heat
+                 resource_registry) which represent nested stacks
+                 for each service that should get installed on the Controllers.
+    type: comma_delimited_list
+
 # Block storage specific parameters
   BlockStorageCount:
     type: number
@@ -883,6 +890,13 @@ resources:
       SwiftProxyVirtualIP: {get_attr: [VipMap, net_ip_uri_map, {get_param: [ServiceNetMap, SwiftProxyNetwork]}]}
       PublicVirtualIP: {get_attr: [VipMap, net_ip_uri_map, external]}
 
+
+  ControllerServiceChain:
+    type: OS::Heat::ResourceChain
+    properties:
+      resources: {get_param: ControllerServices}
+      concurrent: true
+
   Controller:
     type: OS::Heat::ResourceGroup
     depends_on: Networks
@@ -1031,6 +1045,7 @@ resources:
           NodeIndex: '%index%'
           ServerMetadata: {get_param: ServerMetadata}
           SchedulerHints: {get_param: ControllerSchedulerHints}
+          ServiceConfigSettings: {map_merge: {get_attr: [ControllerServiceChain, role_data, hiera_data]}}
 
   Compute:
     type: OS::Heat::ResourceGroup
@@ -1597,6 +1612,12 @@ resources:
         allnodes_extra: {get_attr: [AllNodesExtraConfig, config_identifier]}
         controller_config: {get_attr: [Controller, attributes, config_identifier]}
         deployment_identifier: {get_param: DeployIdentifier}
+        Step1Config: {map_merge: {get_attr: [ControllerServiceChain, role_data, step1_config]}}
+        Step2Config: {map_merge: {get_attr: [ControllerServiceChain, role_data, step2_config]}}
+        Step3Config: {map_merge: {get_attr: [ControllerServiceChain, role_data, step3_config]}}
+        Step4Config: {map_merge: {get_attr: [ControllerServiceChain, role_data, step4_config]}}
+        Step5Config: {map_merge: {get_attr: [ControllerServiceChain, role_data, step5_config]}}
+        Step6Config: {map_merge: {get_attr: [ControllerServiceChain, role_data, step6_config]}}
 
   ComputeNodesPostDeployment:
     type: OS::TripleO::ComputePostDeployment
