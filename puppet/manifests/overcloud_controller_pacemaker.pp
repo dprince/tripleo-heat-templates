@@ -29,13 +29,13 @@ if $::hostname == downcase(hiera('bootstrap_nodeid')) {
   $sync_db = false
 }
 
-$enable_fencing = str2bool(hiera('enable_fencing', false)) and hiera('step') >= 5
+$enable_fencing = str2bool(hiera('enable_fencing', false)) and hiera('step') >= 6
 $enable_load_balancer = hiera('enable_load_balancer', true)
 
 # When to start and enable services which haven't been Pacemakerized
 # FIXME: remove when we start all OpenStack services using Pacemaker
 # (occurrences of this variable will be gradually replaced with false)
-$non_pcmk_start = hiera('step') >= 4
+$non_pcmk_start = hiera('step') >= 5
 
 if hiera('step') >= 1 {
 
@@ -587,7 +587,7 @@ MYSQL_HOST=localhost\n",
 
 } #END STEP 2
 
-if hiera('step') >= 3 {
+if hiera('step') >= 4 {
 
   class { '::keystone':
     sync_db          => $sync_db,
@@ -1140,7 +1140,7 @@ if hiera('step') >= 3 {
 
 } #END STEP 3
 
-if hiera('step') >= 4 {
+if hiera('step') >= 5 {
   $keystone_enable_db_purge = hiera('keystone_enable_db_purge', true)
   $nova_enable_db_purge = hiera('nova_enable_db_purge', true)
   $cinder_enable_db_purge = hiera('cinder_enable_db_purge', true)
@@ -1315,7 +1315,7 @@ if hiera('step') >= 4 {
                   Pacemaker::Resource::Service[$::glance::params::api_service_name]],
     }
 
-    if hiera('step') == 4 {
+    if hiera('step') == 5 {
       # Neutron
       # NOTE(gfidente): Neutron will try to populate the database with some data
       # as soon as neutron-server is started; to avoid races we want to make this
@@ -1842,7 +1842,7 @@ if hiera('step') >= 4 {
 
 } #END STEP 4
 
-if hiera('step') >= 5 {
+if hiera('step') >= 6 {
 
   if $pacemaker_master {
 
