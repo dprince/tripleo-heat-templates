@@ -221,8 +221,6 @@ if hiera('step') >= 4 {
   }
 
   include ::neutron::config
-  include ::neutron::server
-  include ::neutron::server::notifications
 
   # If the value of core plugin is set to 'nuage' or'opencontrail' or 'plumgrid',
   # include nuage or opencontrail or plumgrid core plugins

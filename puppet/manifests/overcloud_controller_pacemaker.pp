@@ -451,12 +451,6 @@ MYSQL_HOST=localhost\n",
   }
 
   include ::neutron::config
-  class { '::neutron::server' :
-    sync_db        => $sync_db,
-    manage_service => false,
-    enabled        => false,
-  }
-  include ::neutron::server::notifications
   if  hiera('neutron::core_plugin') == 'neutron.plugins.nuage.plugin.NuagePlugin' {
     include ::neutron::plugins::nuage
   }
