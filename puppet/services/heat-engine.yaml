@@ -48,6 +48,10 @@ parameters:
     default:
       tag: openstack.heat.engine
       path: /var/log/heat/heat-engine.log
+  HeatConvergenceEngine:
+    type: boolean
+    default: true
+    description: Enables the heat engine with the convergence architecture.
 
 resources:
   HeatBase:
@@ -72,6 +76,25 @@ outputs:
           - heat::engine::num_engine_workers: {get_param: HeatWorkers}
             heat::engine::configure_delegated_roles: false
             heat::engine::trusts_delegated_roles: []
+            heat::engine::max_nested_stack_depth: 6
+            heat::engine::max_resources_per_stack: -1
+            heat::engine::heat_metadata_server_url:
+              list_join:
+                - ''
+                - - {get_param: [EndpointMap, HeatCfnPublic, protocol]}
+                  - '://'
+                  - {get_param: [EndpointMap, HeatCfnPublic, host]}
+                  - ':'
+                  - {get_param: [EndpointMap, HeatCfnPublic, port]}
+            heat::engine::heat_waitcondition_server_url:
+              list_join:
+                - ''
+                - - {get_param: [EndpointMap, HeatCfnPublic, protocol]}
+                  - '://'
+                  - {get_param: [EndpointMap, HeatCfnPublic, host]}
+                  - ':'
+                  - {get_param: [EndpointMap, HeatCfnPublic, port]}
+                  - '/v1/waitcondition'
             tripleo::profile::base::heat::manage_db_purge: {get_param: HeatEnableDBPurge}
             heat::database_connection:
               list_join:
@@ -84,6 +107,7 @@ outputs:
                   - '/heat'
             heat::keystone_ec2_uri: {get_param: [EndpointMap, KeystoneEC2, uri]}
             heat::keystone::domain::domain_password: {get_param: HeatStackDomainAdminPassword}
+            heat::engine::convergence_engine: {get_param: HeatConvergenceEngine}
             heat::engine::auth_encryption_key:
               yaql:
                 expression: $.data.passwords.where($ != '').first()
