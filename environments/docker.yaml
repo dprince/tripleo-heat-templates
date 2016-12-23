@@ -11,7 +11,9 @@ resource_registry:
   OS::TripleO::Services::HeatApi: ../docker/services/heat-api.yaml
   OS::TripleO::Services::HeatApiCfn: ../docker/services/heat-api-cfn.yaml
   OS::TripleO::Services::HeatEngine: ../docker/services/heat-engine.yaml
-  
+
+  OS::TripleO::Services::MySQL: ../docker/services/database/mysql.yaml
+
   OS::TripleO::PostDeploySteps: ../docker/post.yaml
   OS::TripleO::Services: ../docker/services/services.yaml
 
