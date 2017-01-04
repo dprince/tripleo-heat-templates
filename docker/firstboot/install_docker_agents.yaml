@@ -26,10 +26,6 @@ resources:
       config:
         str_replace:
           params:
-            $agent_image:
-              list_join:
-              - '/'
-              - [ {get_param: DockerNamespace}, {get_param: DockerAgentImage} ]
             $docker_registry: {get_param: DockerNamespace}
             $docker_namespace_is_registry: {get_param: DockerNamespaceIsRegistry}
           template: {get_file: ./start_docker_agents.sh}
