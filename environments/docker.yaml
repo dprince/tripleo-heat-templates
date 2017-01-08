@@ -8,6 +8,9 @@ resource_registry:
   OS::TripleO::Services::NovaCompute: ../docker/services/nova-compute.yaml
   OS::TripleO::Services::Keystone: ../docker/services/keystone.yaml
   OS::TripleO::Services::GlanceApi: ../docker/services/glance-api.yaml
+  OS::TripleO::Services::HeatApi: ../docker/services/heat-api.yaml
+  OS::TripleO::Services::HeatApiCfn: ../docker/services/heat-api-cfn.yaml
+  OS::TripleO::Services::HeatEngine: ../docker/services/heat-engine.yaml
   
   OS::TripleO::PostDeploySteps: ../docker/post.yaml
   OS::TripleO::Services: ../docker/services/services.yaml
